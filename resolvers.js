@@ -1,8 +1,8 @@
 import {quotes,users } from "./fakedb.js"
-import {randomBytes} from "crypto"
 import bcrypt from "bcryptjs"
 import mongoose from "mongoose"
-import { JWT_SECRET } from "./config.js"
+import dotenv from "dotenv"
+dotenv.config();
 import jwt from "jsonwebtoken"
 
 const User = mongoose.model("User")
@@ -12,7 +12,7 @@ const resolvers  = {
     Query:{
         users : async () => await User.find({}),
         user:async (_,{_id}) => await User.findOne({_id}),  //users.find(user => user._id == _id),
-        quotes: async () => await Quote.find({}).populate("by", "_id firstName"), //quotes,
+        quotes: async () => await Quote.find({}).populate("by", "_id firstName"), 
         iquote: async (_,{by}) => await Quote.find({by}) //quotes.filter(quote => quote.by == by)
     },
     User:{
@@ -48,7 +48,7 @@ const resolvers  = {
                 throw new Error("invalid username or password!!")
             } 
 
-            const token = jwt.sign({userId:user._id}, JWT_SECRET)
+            const token = jwt.sign({userId:user._id},process.env.JWT_SECRET)
             return {token}
         }, 
         createQuote: async (_, {name}, {userId}) => {
