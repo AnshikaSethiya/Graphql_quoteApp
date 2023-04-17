@@ -4,16 +4,14 @@ import { GET_MY_PROFILE } from "../graphqlOperations/Queries";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { loading, error, data } = useQuery(GET_MY_PROFILE);
 
-
-  if(!localStorage.getItem("token")){
-    navigate("/login")
-    return <h1>unauthorized</h1>
-}
-console.log("profile data: ", data)
+  if (!localStorage.getItem("token")) {
+    navigate("/login");
+    return <h1>unauthorized</h1>;
+  }
+  // console.log("profile data: ", data);
 
   if (loading) {
     return (
