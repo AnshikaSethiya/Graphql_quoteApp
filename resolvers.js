@@ -1,4 +1,3 @@
-import {quotes,users } from "./fakedb.js"
 import bcrypt from "bcryptjs"
 import mongoose from "mongoose"
 import dotenv from "dotenv"
@@ -13,8 +12,12 @@ const resolvers  = {
         users : async () => await User.find({}),
         user:async (_,{_id}) => await User.findOne({_id}),  //users.find(user => user._id == _id),
         quotes: async () => await Quote.find({}).populate("by", "_id firstName"), 
-        iquote: async (_,{by}) => await Quote.find({by}) //quotes.filter(quote => quote.by == by)
-    },
+        iquote: async (_,{by}) => await Quote.find({by}), //quotes.filter(quote => quote.by == by)
+        myProfile:async (_,args,{userId})=>{
+            if(!userId) throw new Error("You must be logged in")
+            return await User.findOne({_id:userId})
+           }
+     },
     User:{
         quotes:async(ur) => await Quote.find({by:ur._id})//quotes.filter(quote => quote.by == ur._id)
     }, 
@@ -39,7 +42,7 @@ const resolvers  = {
         signinUser: async (_, {userSignin}) => {
             const user = await User.findOne({email: userSignin.email})
             if(!user){
-                throw new Error("USer does not exist!!")
+                throw new Error("User does not exist!!")
             }
 
             const passMatch = await bcrypt.compare(userSignin.password, user.password)
@@ -51,6 +54,7 @@ const resolvers  = {
             const token = jwt.sign({userId:user._id},process.env.JWT_SECRET)
             return {token}
         }, 
+
         createQuote: async (_, {name}, {userId}) => {
             if(!userId) throw new Error("User must log in first!!")
             const newQuote = new Quote({name, by:userId})

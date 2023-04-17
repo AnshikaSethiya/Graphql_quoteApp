@@ -1,24 +1,55 @@
+import { useMutation } from '@apollo/client'
 import React, {useState} from 'react'
 import { Link } from 'react-router-dom'
+import { SIGNUP_USER } from '../graphqlOperations/Mutations'
 
 const Signup = () => {
     const [formData,setFormData] = useState({})
+    const [signupUser,{loading, error, data}] = useMutation(SIGNUP_USER)
+
+    if(loading){
+        return (
+            <div className="preloader-wrapper big active">
+              <div className="spinner-layer spinner-blue spinner">
+                <div className="circle-clipper left">
+                  <div className="circle"></div>
+                </div>
+                <div className="gap-patch">
+                  <div className="circle"></div>
+                </div>
+                <div className="circle-clipper right">
+                  <div className="circle"></div>
+                </div>
+              </div>
+            </div>
+          );
+    }
+
+    if(error){ console.log(error.message) }
     
     const handleChange = (e)=>{
         setFormData({
          ...formData,
          [e.target.name]:e.target.value
         })
-    
     }
 
     const handleSubmit = (e)=>{
         e.preventDefault()
-        console.log(formData)
+        signupUser({
+            variables:{
+                userNew:formData
+            }
+        })
+        // console.log(formData)
     }
 
   return (
     <div className='container my-container'>
+
+        {error && <div className='red card-panel'>{error.message}</div>}
+
+        {data && data.user && <div className='green card-panel'>{data.user.firstName} signed up successfully!! <p>You can login now.</p></div>}
 
         <h5>Sign Up!!</h5>
         
@@ -52,7 +83,7 @@ const Signup = () => {
           </div>
 
           <h6>Already have an account? <Link to="/login">Login</Link></h6>   
-          <button className="btn #0d47a1 blue darken-4" type="submit">Login</button>
+          <button className="btn #0d47a1 blue darken-4" type="submit">Sign Up</button>
         </form>
       </div>
     </div>
